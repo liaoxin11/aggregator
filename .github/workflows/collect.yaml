@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          token: ${{ secrets.GIST_PAT }}
 
       - name: Prepare
         uses: actions/setup-python@v5
@@ -37,17 +38,13 @@ jobs:
       - name: Collect
         run: python -u subscribe/collect.py --all --refresh --skip
 
-      - name: Commit data to repo
+      - name: Commit and push data
         run: |
           git config --local user.email 'liaoxin11@users.noreply.github.com'
           git config --local user.name 'liaoxin11'
           git add ./data/* || true
           git commit -m "$(date '+%Y-%m-%d %H:%M:%S') sub_merge_node" || true
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          branch: main
-          github_token: ${{ secrets.GIST_PAT }}
+          git push
 
       - name: Timestamp
         run: date
