@@ -47,7 +47,7 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           branch: main
-          github_token: ${{ secrets.GH_TOKEN }}
+          github_token: ${{ secrets.GIST_PAT }}
 
       - name: Timestamp
         run: date
