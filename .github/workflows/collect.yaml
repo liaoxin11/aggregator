@@ -34,16 +34,20 @@ jobs:
       - name: Install
         run: pip3 install -r requirements.txt
 
-      - name: Check
-        run: |
-          if [ -z "$GIST_PAT" ]; then echo "Error: GIST_PAT empty"; exit 1; fi
-          if [ -z "$GIST_LINK" ]; then echo "Error: GIST_LINK empty"; exit 1; fi
-
       - name: Collect
-        # refresh = skip airport registration, use existing subscriptions only
-        # skip = skip clash liveness check (Resin does probing)
-        # all = generate all format outputs (clash/v2ray/singbox)
         run: python -u subscribe/collect.py --all --refresh --skip
+
+      - name: Commit data to repo
+        run: |
+          git config --local user.email 'liaoxin11@users.noreply.github.com'
+          git config --local user.name 'liaoxin11'
+          git add ./data/* || true
+          git commit -m "$(date '+%Y-%m-%d %H:%M:%S') sub_merge_node" || true
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: main
+          github_token: ${{ secrets.GH_TOKEN }}
 
       - name: Timestamp
         run: date
