@@ -35,6 +35,43 @@ jobs:
       - name: Install
         run: pip3 install -r requirements.txt
 
+      - name: Merge crawled subs
+        # Pull crawledsubs.txt (JSON: {"url": {...}}) from Gist, extract URLs,
+        # merge into data/subscribes.txt so collect.py picks them up.
+        # This closes the loop: Process discovers → Collect fetches.
+        env:
+          GIST_ID: ${{ secrets.GIST_LINK }}
+          GIST_PAT: ${{ secrets.GIST_PAT }}
+        run: |
+          GIST_USER=$(echo "$GIST_ID" | cut -d/ -f1)
+          GIST_ID_ONLY=$(echo "$GIST_ID" | cut -d/ -f2)
+          CRAWLED=$(curl -sL -H "Authorization: token $GIST_PAT" \
+            "https://api.github.com/gists/$GIST_ID_ONLY" \
+            | python3 -c "
+          import json,sys
+          try:
+            d=json.load(sys.stdin)
+            f=d.get('files',{}).get('crawledsubs.txt',{})
+            raw=f.get('raw_url','')
+            if not raw: print(''); sys.exit()
+            import urllib.request
+            c=urllib.request.urlopen(raw,timeout=15).read().decode('utf8','ignore')
+            data=json.loads(c) if c.strip() else {}
+            for url in data.keys(): print(url)
+          except Exception as e:
+            print('',end='')
+          ")
+          if [ -n "$CRAWLED" ]; then
+            echo "Discovered URLs from crawledsubs:"
+            echo "$CRAWLED"
+            mkdir -p data
+            cat data/subscribes.txt 2>/dev/null > /tmp/old_subs.txt || true
+            { cat /tmp/old_subs.txt 2>/dev/null; echo "$CRAWLED"; } | grep -E '^https?://' | sort -u > data/subscribes.txt
+            echo "subscribes.txt: $(wc -l < data/subscribes.txt) sources (after merge)"
+          else
+            echo "No crawledsubs to merge"
+          fi
+
       - name: Collect
         run: python -u subscribe/collect.py --all --refresh --skip
 
