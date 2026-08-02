@@ -9,8 +9,8 @@ env:
   GIST_PAT: ${{ secrets.GIST_PAT }}
   GIST_LINK: ${{ secrets.GIST_LINK }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  SUBSCRIBE_CONF: ${{ secrets.SUBSCRIBE_CONF }}
   WORKFLOW_MODE: "1"
-  ENABLE_SPECIAL_PROTOCOLS: ${{ vars.ENABLE_SPECIAL_PROTOCOLS }}
 
 jobs:
   process:
@@ -32,11 +32,9 @@ jobs:
         run: pip3 install -r requirements.txt
 
       - name: Process
-        # process.py runs the crawl module:
-        #   - GitHub code search (/api/v1/client/subscribe?token=)
-        #   - GitHub issues search
-        #   - repo commits tracking
-        # finds new subscription URLs, persists to Gist, then aggregates
+        # process.py reads config from SUBSCRIBE_CONF (gist URL)
+        # config.json enables: github code search crawl (5 pages) + gist storage
+        # discovers new /api/v1/client/subscribe?token= links, persists to crawledsubs
         run: python -u subscribe/process.py --overwrite
 
       - name: Timestamp
