@@ -9,6 +9,7 @@ env:
   GIST_PAT: ${{ secrets.GIST_PAT }}
   GIST_LINK: ${{ secrets.GIST_LINK }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  PUSH_TOKEN: ${{ secrets.GIST_PAT }}
   SUBSCRIBE_CONF: ${{ secrets.SUBSCRIBE_CONF }}
   WORKFLOW_MODE: "1"
 
