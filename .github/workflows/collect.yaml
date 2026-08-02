@@ -35,7 +35,7 @@ jobs:
       - name: Install
         run: pip3 install -r requirements.txt
 
-      - name: Merge crawled subs
+      - name: Prepare source pool
         env:
           GIST_PAT: ${{ secrets.GIST_PAT }}
           GIST_LINK: ${{ secrets.GIST_LINK }}
@@ -54,22 +54,16 @@ jobs:
             for url in data.keys(): print(url)
           except: pass
           ")
-          if [ -n "$CRAWLED" ]; then
-            mkdir -p data
-            { cat data/subscribes.txt 2>/dev/null; echo "$CRAWLED"; } | grep -E '^https?://' | sort -u > /tmp/all_candidates.txt
-            cp /tmp/all_candidates.txt data/subscribes.txt
-            echo "Merged crawledsubs → $(wc -l < data/subscribes.txt) total sources"
-          else
-            cp data/subscribes.txt /tmp/all_candidates.txt 2>/dev/null || touch /tmp/all_candidates.txt
-            echo "No crawledsubs to merge"
-          fi
+          {
+            cat data/sources_raw.txt 2>/dev/null || true
+            echo "$CRAWLED"
+          } | grep -E '^https?://' | sort -u > /tmp/all_candidates.txt
+          echo "Source pool: $(wc -l < /tmp/all_candidates.txt) URLs"
 
       - name: Pre-validate sources
-        # Loosely validate: HTTP 200 + content > 32 bytes.
-        # Only keep reachable sources so collect.py's check_status passes them all.
         run: |
           python3 -c "
-          import urllib.request, ssl, concurrent.futures, re, sys
+          import urllib.request, ssl, concurrent.futures, re, sys, os
           ctx = ssl.create_default_context()
           ctx.check_hostname = False
           ctx.verify_mode = ssl.CERT_NONE
@@ -81,31 +75,24 @@ jobs:
               try:
                   req = urllib.request.Request(url, headers={'User-Agent': 'clash.meta'})
                   resp = urllib.request.urlopen(req, timeout=15, context=ctx)
-                  if resp.getcode() != 200:
-                      return None
+                  if resp.getcode() != 200: return None
                   content = resp.read(1024*1024).decode('utf8', 'ignore')
-                  if len(content) < 32:
-                      return None
-                  # check if content looks like proxies
-                  has_proxy = bool(re.search(r'(vmess://|vless://|trojan://|ss://|ssr://|hy2://|hysteria2://|tuic://|\"server\"|proxies:|server:|\"type\"|shadowsocks|\"outbounds\")', content))
-                  if has_proxy:
+                  if len(content) < 32: return None
+                  if re.search(r'(vmess://|vless://|trojan://|ss://|ssr://|hy2://|hysteria2://|tuic://|\"server\"|proxies:|server:|\"type\"|shadowsocks|\"outbounds\")', content):
                       return url
-                  # might be base64 encoded
                   if len(content) > 100 and re.match(r'^[A-Za-z0-9+/=\s]+$', content[:500]):
                       return url
                   return None
-              except:
-                  return None
+              except: return None
 
           with concurrent.futures.ThreadPoolExecutor(max_workers=50) as ex:
               results = list(ex.map(check, urls))
-
           valid = [u for u in results if u]
           print(f'valid: {len(valid)} / {len(urls)}', file=sys.stderr)
+          os.makedirs('data', exist_ok=True)
           with open('data/subscribes.txt', 'w') as f:
-              for u in valid:
-                  f.write(u + '\n')
-          print(f'wrote {len(valid)} valid sources to data/subscribes.txt')
+              for u in valid: f.write(u + '\n')
+          print(f'wrote {len(valid)} validated sources')
           "
 
       - name: Collect
