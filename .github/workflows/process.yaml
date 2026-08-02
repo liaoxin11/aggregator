@@ -1,39 +1,20 @@
 name: Process
 on:
   schedule:
-    - cron: "05 03 * * *"
-    - cron: "05 11 * * *"
+    - cron: "15 */6 * * *"   # every 6 hours
   workflow_dispatch:
 
 env:
-  # time zone
   TZ: Asia/Shanghai
-
-  # network proxy aggregate config
-  SUBSCRIBE_CONF: ${{ secrets.SUBSCRIBE_CONF }}
-
-  # token
-  PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
-
-  # network reachable
-  REACHABLE: ${{ vars.REACHABLE }}
-
-  # not check connective
-  SKIP_ALIVE_CHECK: ${{ vars.SKIP_ALIVE_CHECK }}
-
-  # skip remark
-  SKIP_REMARK: ${{ vars.SKIP_REMARK }}
-
-  # workflow mode
-  WORKFLOW_MODE: ${{ vars.WORKFLOW_MODE }}
-
-  # include spwcial protocols, such vless hysteria2 and hysteria
+  GIST_PAT: ${{ secrets.GIST_PAT }}
+  GIST_LINK: ${{ secrets.GIST_LINK }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  WORKFLOW_MODE: "1"
   ENABLE_SPECIAL_PROTOCOLS: ${{ vars.ENABLE_SPECIAL_PROTOCOLS }}
 
 jobs:
   process:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,6 +32,11 @@ jobs:
         run: pip3 install -r requirements.txt
 
       - name: Process
+        # process.py runs the crawl module:
+        #   - GitHub code search (/api/v1/client/subscribe?token=)
+        #   - GitHub issues search
+        #   - repo commits tracking
+        # finds new subscription URLs, persists to Gist, then aggregates
         run: python -u subscribe/process.py --overwrite
 
       - name: Timestamp
