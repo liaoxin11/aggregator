@@ -6,7 +6,6 @@
 # 导入必要的系统和第三方库
 import argparse  # 命令行参数解析
 import itertools  # 迭代器工具
-import json  # JSON 序列化（raw 输出用）
 import os  # 系统操作
 import random  # 随机数生成
 import re  # 正则表达式
@@ -89,10 +88,18 @@ def assign(
             if items:
                 subscriptions.update(items)
 
-        # skip check_status: it misjudges base64/uri-list sources as invalid (87% false negative).
-        # invalid sources will naturally yield 0 nodes in executewrapper, no harm done.
-        logger.info(f"skip check_status, using all {len(subscriptions)} subscriptions directly")
-        return list(subscriptions)
+        logger.info("start checking whether existing subscriptions have expired")
+
+        # 过滤已过期订阅并返回
+        links = list(subscriptions)
+        results = utils.multi_thread_run(
+            func=crawl.check_status,
+            tasks=links,
+            num_threads=num_threads,
+            show_progress=display,
+        )
+
+        return [links[i] for i in range(len(links)) if results[i][0] and not results[i][1]]
 
     def parse_domains(content: str) -> dict:
         """
@@ -290,18 +297,6 @@ def aggregate(args: argparse.Namespace) -> None:
         logger.error("exit because cannot fetch any proxy node")
         sys.exit(0)
 
-    # >>> raw-all: dump ALL proxies as clash JSON (no dedup, no subconverter loss)
-    # Resin subscribes this file directly; its parser handles {"proxies": [...]} JSON natively.
-    # This preserves every node (same server:port with different uuid/password counted separately).
-    raw_all_proxies = [p for p in proxies if isinstance(p, dict)]
-    logger.info(f"[RawAll] total raw proxies before dedup: {len(raw_all_proxies)}")
-    os.makedirs(DATA_BASE, exist_ok=True)
-    raw_clash_json_path = os.path.join(DATA_BASE, "raw-clash.json")
-    with open(raw_clash_json_path, "w", encoding="utf8") as f:
-        json.dump({"proxies": raw_all_proxies}, f, ensure_ascii=False)
-    logger.info(f"[RawAll] wrote raw-clash.json ({len(raw_all_proxies)} proxies)")
-    # <<< raw-all
-
     nodes, workspace = [], os.path.join(PATH, "clash")
 
     if args.skip:
@@ -447,13 +442,6 @@ def aggregate(args: argparse.Namespace) -> None:
 
         if urls:
             files[subscribes_file] = {"content": "\n".join(urls), "filename": subscribes_file}
-
-        # >>> raw-all: push raw-clash.json (all proxies, no dedup) to gist
-        raw_path = os.path.join(DATA_BASE, "raw-clash.json")
-        if os.path.exists(raw_path) and os.path.isfile(raw_path):
-            with open(raw_path, "r", encoding="utf8") as f:
-                files["raw-clash.json"] = {"content": f.read(), "filename": "raw-clash.json"}
-        # <<< raw-all
 
         if files:
             push_client = push.PushToGist(token=access_token)
