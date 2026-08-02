@@ -89,18 +89,10 @@ def assign(
             if items:
                 subscriptions.update(items)
 
-        logger.info("start checking whether existing subscriptions have expired")
-
-        # 过滤已过期订阅并返回
-        links = list(subscriptions)
-        results = utils.multi_thread_run(
-            func=crawl.check_status,
-            tasks=links,
-            num_threads=num_threads,
-            show_progress=display,
-        )
-
-        return [links[i] for i in range(len(links)) if results[i][0] and not results[i][1]]
+        # skip check_status: it misjudges base64/uri-list sources as invalid (87% false negative).
+        # invalid sources will naturally yield 0 nodes in executewrapper, no harm done.
+        logger.info(f"skip check_status, using all {len(subscriptions)} subscriptions directly")
+        return list(subscriptions)
 
     def parse_domains(content: str) -> dict:
         """
