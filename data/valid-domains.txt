@@ -1,12 +1,9 @@
 https://github.com
-https://api-xb.node2.top
 https://proxypool.link
-https://anaer.github.io
-https://vv.louwangzhiyu.org
-https://api.ddgou.xyz
 https://bnsss.cc
-https://dctcc.louwangzhiyu.shop
-https://www.louwangzhiyu.org
-https://azadnet05.pages.dev
 https://cdn.jsdelivr.net
 https://raw.githubusercontent.com
+https://anaer.github.io
+https://api.ddgou.xyz
+https://azadnet05.pages.dev
+https://api-xb.node2.top
