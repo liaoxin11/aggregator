@@ -1,11 +1,8 @@
-https://bnsss.cc
 https://api.ddgou.xyz
-https://cdn.jsdelivr.net
-https://raw.githubusercontent.com
 https://api-xb.node2.top
-https://dctcc.louwangzhiyu.shop
-https://www.louwangzhiyu.org
-https://zhs.futbol
-https://vv.louwangzhiyu.org
-https://anaer.github.io
 https://github.com
+https://anaer.github.io
+https://cdn.jsdelivr.net
+https://zhs.futbol
+https://raw.githubusercontent.com
+https://bnsss.cc
