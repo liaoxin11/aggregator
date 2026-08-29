@@ -1,10 +1,7 @@
-https://bnsss.cc
-https://www.louwangzhiyu.org
-https://cdn.jsdelivr.net
-https://dctcc.louwangzhiyu.shop
-https://raw.githubusercontent.com
-https://github.com
-https://anaer.github.io
 https://api.ddgou.xyz
-https://vv.louwangzhiyu.org
+https://cdn.jsdelivr.net
+https://anaer.github.io
+https://github.com
+https://raw.githubusercontent.com
 https://zhs.futbol
+https://bnsss.cc
