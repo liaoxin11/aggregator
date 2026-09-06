@@ -1,10 +1,10 @@
-https://anaer.github.io
-https://cdn.jsdelivr.net
-https://cdn.tlsa.top
 https://zhs.futbol
-https://api.ddgou.xyz
+https://anaer.github.io
 https://s1.byte77.com
-https://bnsss.cc
+https://github.com
+https://cdn.jsdelivr.net
 https://proxypool.link
 https://raw.githubusercontent.com
-https://github.com
+https://api.ddgou.xyz
+https://cdn.tlsa.top
+https://bnsss.cc
