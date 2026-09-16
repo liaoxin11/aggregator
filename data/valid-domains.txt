@@ -1,8 +1,7 @@
 https://github.com
 https://cdn.tlsa.top
-https://api.ddgou.xyz
-https://proxypool.link
 https://bnsss.cc
 https://raw.githubusercontent.com
 https://zhs.futbol
-https://cdn.jsdelivr.net
+https://proxypool.link
+https://api.ddgou.xyz
