@@ -1,9 +1,9 @@
-https://zhs.futbol
-https://cdn.tlsa.top
 https://api.ddgou.xyz
+https://cdn.jsdelivr.net
+https://cdn.tlsa.top
+https://proxypool.link
 https://raw.githubusercontent.com
 https://anaer.github.io
-https://bnsss.cc
-https://proxypool.link
+https://zhs.futbol
 https://github.com
-https://cdn.jsdelivr.net
+https://bnsss.cc
