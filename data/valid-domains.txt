@@ -1,9 +1,8 @@
 https://cdn.jsdelivr.net
-https://trojanvmess.pages.dev
 https://raw.githubusercontent.com
-https://github.com
-https://api.ddgou.xyz
-https://anaer.github.io
 https://zhs.futbol
 https://bnsss.cc
+https://api.ddgou.xyz
+https://github.com
+https://anaer.github.io
 https://proxypool.link
